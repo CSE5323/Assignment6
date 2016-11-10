@@ -14,6 +14,6 @@
 - conda create --name mslc scipy numpy matplotlib tornado scikit-learn pymongo
 
 ## Tornado/Application Run
-- cd <XcodeProjectFolder of Assignment6>/tornado_bare-sklearn_example
+- cd \<XcodeProjectFolder of Assignment6\>/tornado_bare-sklearn_example
 - source activate mslc
 - python tornado_scikit_learn.py
