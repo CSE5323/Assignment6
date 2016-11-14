@@ -13,7 +13,7 @@
 // if you do not know your local sharing server name try:
 //    ifconfig |grep inet
 // to see what your public facing IP address is, the ip address can be used here
-#define SERVER_URL "http://10.8.123.119:8000"   // or the name might be in format: "http://erics-macbook-pro.local:8000"
+#define SERVER_URL "http://10.8.31.255:8000"   // or the name might be in format: "http://erics-macbook-pro.local:8000"
 #define UPDATE_INTERVAL 1/10.0
 
 @interface SMUViewController () <NSURLSessionTaskDelegate>
@@ -24,10 +24,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *dsidLabel;
 
 // display views
-@property (weak, nonatomic) IBOutlet UIView *topRight;
-@property (weak, nonatomic) IBOutlet UIView *bottomRight;
-@property (weak, nonatomic) IBOutlet UIView *topLeft;
-@property (weak, nonatomic) IBOutlet UIView *bottomLeft;
+@property (weak, nonatomic) IBOutlet UILabel *num;
+@property (weak, nonatomic) NSArray *numbers;
 
 // for storing accelerometer updates
 @property (strong, nonatomic) CMMotionManager *cmMotionManager;
@@ -74,6 +72,12 @@
     return _ringBuffer;
 }
 
+-(NSArray*)numbers {
+    if(!_numbers) {
+        _numbers = [NSArray arrayWithObjects:@"0",@"1",@"2",@"3",@"4",@"5",@"6",@"7",@"8",@"9", nil];
+    }
+    return _numbers;
+}
 
 #pragma mark - View Controller Life Cycle Methods
 - (void)viewDidLoad
@@ -160,85 +164,16 @@
 }
 
 -(void)nextCalibrationStage{
-    switch (self.calibrationStage) {
-        case -1:
-        {
-            //start in top left
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self makeRed:self.topLeft];
-                self.calibrationStage=0;
-                [self performSelector:@selector(setWaitingToTrue) withObject:nil afterDelay:1.0];
-            });
-            break;
-        }
-        case 0:
-        {
-            //move to top right
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self makeBlue:self.topLeft];
-                [self makeRed:self.topRight];
-                self.calibrationStage=1;
-                [self performSelector:@selector(setWaitingToTrue) withObject:nil afterDelay:1.0];
-            });
-            break;
-        }
-        case 1:
-        {
-            //move to bottom right
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self makeBlue:self.topRight];
-                [self makeRed:self.bottomRight];
-                self.calibrationStage=2;
-                [self performSelector:@selector(setWaitingToTrue) withObject:nil afterDelay:1.0];
-            });
-            break;
-        }
-        case 2:
-        {
-            //move to bottom left
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self makeBlue:self.bottomRight];
-                [self makeRed:self.bottomLeft];
-                self.calibrationStage=3;
-                [self performSelector:@selector(setWaitingToTrue) withObject:nil afterDelay:1.0];
-            });
-            break;
-        }
-        case 3:
-        {
-            //stop calibration
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self makeBlue:self.bottomLeft];
-                self.isCalibrating = NO;
-                self.calibrationStage=-1;
-                [self performSelector:@selector(setWaitingToTrue) withObject:nil afterDelay:1.0];
-            });
-            break;
-        }
-        default:
-            break;
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.num.text = self.numbers[self.calibrationStage];
+        if(self.calibrationStage != 9)
+            self.calibrationStage++;
+        else
+            self.calibrationStage = 0;
+        [self performSelector:@selector(setWaitingToTrue) withObject:nil afterDelay:1.0];
+    });
     
 }
-
-#pragma mark - touch response feedback methods
-- (void) startFlashToView:(UIView*)view
-{
-    [self performSelector:@selector(makeRed:) withObject:view afterDelay: 0];
-    [self performSelector:@selector(makeBlue:) withObject:view afterDelay: 0.5];
-    [self performSelector:@selector(makeRed:) withObject:view afterDelay: 1.0];
-    [self performSelector:@selector(makeBlue:) withObject:view afterDelay: 1.5];
-    
-}
-
--(void)makeBlue:(UIView*)view{
-    [view setBackgroundColor:[UIColor blueColor]];
-}
-
--(void)makeRed:(UIView*)view{
-    [view setBackgroundColor:[UIColor redColor]];
-}
-
 
 #pragma mark - HTTP Post and Get Request Methods
 - (IBAction)getDataSetId:(id)sender {
@@ -327,13 +262,25 @@
                  dispatch_async(dispatch_get_main_queue(), ^{
                      // flash the view that was touched
                      if([labelResponse  isEqual: @"[0]"])
-                         [self startFlashToView:self.topLeft];
+                         self.num.text = @"0";
                      else if([labelResponse  isEqual: @"[1]"])
-                             [self startFlashToView:self.topRight];
+                         self.num.text = @"1";
                      else if([labelResponse  isEqual: @"[2]"])
-                         [self startFlashToView:self.bottomRight];
+                         self.num.text = @"2";
                      else if([labelResponse  isEqual: @"[3]"])
-                         [self startFlashToView:self.bottomLeft];
+                         self.num.text = @"3";
+                     else if([labelResponse  isEqual: @"[4]"])
+                         self.num.text = @"4";
+                     else if([labelResponse  isEqual: @"[5]"])
+                         self.num.text = @"5";
+                     else if([labelResponse  isEqual: @"[6]"])
+                         self.num.text = @"6";
+                     else if([labelResponse  isEqual: @"[7]"])
+                         self.num.text = @"7";
+                     else if([labelResponse  isEqual: @"[8]"])
+                         self.num.text = @"8";
+                     else if([labelResponse  isEqual: @"[9]"])
+                         self.num.text = @"9";
                      
                      self.isWaitingForInputData = YES;
                  });
