@@ -44,8 +44,8 @@ class UploadLabeledDatapointHandler(BaseHandler):
 class SetParams(BaseHandler):
     def post(self):
         data = json.loads(self.request.body.decode("utf-8"))
-        self.knn_param = data['KNeighbors']
-        self.rand_param data['RandomForest']
+        self.application.knn_param = data['KNeighbors']
+        self.application.rand_param data['SVM']
 
 class RequestNewDatasetId(BaseHandler):
     def get(self):
@@ -59,7 +59,7 @@ class UpdateModelForDatasetId(BaseHandler):
     def get(self):
         '''Train a new model (or update) for given dataset ID
         '''
-        dsid = self.get_int_arg("dsid", default = 0)
+        # dsid = self.get_int_arg("dsid", default = 0)
 
         # create feature vectors from database
         f=[];
@@ -76,7 +76,7 @@ class UpdateModelForDatasetId(BaseHandler):
         c2 = svm.svc(gamma = 0.0, C = self.svm_C_param)
 
         acc_knn = -1;
-        acc_svm = -1
+        acc_svm = -1;
 
         if l:
             c1.fit(f,l) # training
@@ -115,15 +115,15 @@ class PredictOneFromDatasetId(BaseHandler):
         vals = data['feature'];
         fvals = [float(val) for val in vals];
         fvals = np.array(fvals).reshape(1, -1)
-        dsid  = data['dsid']
+        # dsid  = data['dsid']
 
         # load the model from the database (using pickle)
         # we are blocking tornado!! no!!
 
-        if(self.clf == [] or not self.clf.has_key(dsid)):
+        if self.clf:
             print('Loading Model From DB')
-            tmp = self.db.models.find_one({"dsid": dsid})
-            self.clf = {dsid : pickle.loads(tmp['model'])}
-        predLabel1 = self.clf["KNeighbors"].predict(fvals);
-        predLabel2 = self.clf["SVM"].predict(fvals);
-        self.write_json({"prediction": str(predLabel)})
+            pred_label_knn = self.clf["KNeighbors"].predict(fvals);
+            pred_label_svm = self.clf["SVM"].predict(fvals);
+            self.write_json({"prediction_knn": str(pred_label_knn), "prediction_svm": str(pred_label_svm)})
+        else
+            raise HTTPError(status_code = 404, log_message = "No model!")
