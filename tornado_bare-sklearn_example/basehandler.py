@@ -52,7 +52,7 @@ class BaseHandler(tornado.web.RequestHandler):
         '''Default get request, return a 404
            HTTP error
         '''
-        raise HTTPError(404)
+        # raise HTTPError(404)
 
     @property
     def db(self):
