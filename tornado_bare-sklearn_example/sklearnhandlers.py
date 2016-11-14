@@ -125,5 +125,5 @@ class PredictOneFromDatasetId(BaseHandler):
             pred_label_knn = self.clf["KNeighbors"].predict(fvals);
             pred_label_svm = self.clf["SVM"].predict(fvals);
             self.write_json({"prediction_knn": str(pred_label_knn), "prediction_svm": str(pred_label_svm)})
-        else
+        else:
             raise HTTPError(status_code = 404, log_message = "No model!")
