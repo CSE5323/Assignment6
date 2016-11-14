@@ -83,7 +83,7 @@ class BaseHandler(tornado.web.RequestHandler):
         '''
         try:
             arg = self.get_argument(value, default, strip)
-            return default if arg == default else int(arg) 
+            return default if arg == default else int(arg)
         except ValueError:
             e = "%s could not be read as an integer" % value
             raise HTTPJSONError(1, e)
@@ -113,12 +113,9 @@ class BaseHandler(tornado.web.RequestHandler):
             raise HTTPJSONError(1, e)
 
     def write_json(self, value={}):
-        '''Completes header and writes JSONified 
+        '''Completes header and writes JSONified
            HTTP back to client
         '''
         self.set_header("Content-Type", "application/json")
         tmp = json_str(value);
         self.write(tmp)
-
-
-

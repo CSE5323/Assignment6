@@ -120,10 +120,17 @@ class PredictOneFromDatasetId(BaseHandler):
         # load the model from the database (using pickle)
         # we are blocking tornado!! no!!
 
-        if self.clf:
+        if self.clf == []:
+
+            if self.db.models.count() == 0:
+                raise HTTPError(status_code = 404, log_message = "No model!")
+
             print('Loading Model From DB')
-            pred_label_knn = self.clf["KNeighbors"].predict(fvals);
-            pred_label_svm = self.clf["SVM"].predict(fvals);
-            self.write_json({"prediction_knn": str(pred_label_knn), "prediction_svm": str(pred_label_svm)})
-        else:
-            raise HTTPError(status_code = 404, log_message = "No model!")
+            var_knn = self.db.models.find_one({"classifier":"KNeighbors"})
+            var_svm = self.db.models.find_one({"classifier":"SVM"})
+            self.clf["KNeighbors"] = pickle.loads(var_knn['model'])
+            self.clf["SVM"] = pickle.loads(var_svm['model'])
+
+        pred_label_knn = self.clf["KNeighbors"].predict(fvals);
+        pred_label_svm = self.clf["SVM"].predict(fvals);
+        self.write_json({"prediction_knn": str(pred_label_knn), "prediction_svm": str(pred_label_svm)})

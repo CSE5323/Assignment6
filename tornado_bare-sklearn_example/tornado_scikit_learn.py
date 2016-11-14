@@ -34,12 +34,12 @@ class Application(tornado.web.Application):
         '''
 
         handlers = [(r"/[/]?", BaseHandler),
+                    (r"/SetParams[/]?",   skh.SetParams),
                     (r"/Handlers[/]?",        skh.PrintHandlers),
                     (r"/AddDataPoint[/]?",    skh.UploadLabeledDatapointHandler),
                     (r"/GetNewDatasetId[/]?", skh.RequestNewDatasetId),
                     (r"/UpdateModel[/]?",     skh.UpdateModelForDatasetId),
-                    (r"/PredictOne[/]?",      skh.PredictOneFromDatasetId),
-                    (r"/SetParams[/]?",   skh.SetParams),
+                    (r"/PredictOne[/]?",      skh.PredictOneFromDatasetId)
                     ]
 
         self.handlers_string = str(handlers)
@@ -55,7 +55,7 @@ class Application(tornado.web.Application):
             print('Are you running a valid local-hosted instance of mongodb?')
             #raise inst
 
-        self.clf = [] # the classifier model (in-class assignment, you might need to change this line!)
+        self.clf = {} # the classifier model (in-class assignment, you might need to change this line!)
         # but depending on your implementation, you may not need to change it  ¯\_(ツ)_/¯
 
         self.knn_param = 4
