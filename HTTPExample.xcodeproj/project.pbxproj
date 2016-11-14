@@ -208,7 +208,7 @@
 				ORGANIZATIONNAME = "Eric Larson";
 				TargetAttributes = {
 					B6051734187CACDA00BC168F = {
-						DevelopmentTeam = F69WJ27LN4;
+						DevelopmentTeam = EGT4N6FS8J;
 					};
 					B6051755187CACDB00BC168F = {
 						TestTargetID = B6051734187CACDA00BC168F;
@@ -397,12 +397,12 @@
 		B6051768187CACDB00BC168F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = F69WJ27LN4;
+				DEVELOPMENT_TEAM = EGT4N6FS8J;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "HTTPExample/HTTPExample-Prefix.pch";
 				INFOPLIST_FILE = "HTTPExample/HTTPExample-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "SMU.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = com.SMU.HTTPExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -411,12 +411,12 @@
 		B6051769187CACDB00BC168F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = F69WJ27LN4;
+				DEVELOPMENT_TEAM = EGT4N6FS8J;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "HTTPExample/HTTPExample-Prefix.pch";
 				INFOPLIST_FILE = "HTTPExample/HTTPExample-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "SMU.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = com.SMU.HTTPExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

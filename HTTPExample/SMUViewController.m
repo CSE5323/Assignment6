@@ -13,7 +13,7 @@
 // if you do not know your local sharing server name try:
 //    ifconfig |grep inet
 // to see what your public facing IP address is, the ip address can be used here
-#define SERVER_URL "http://10.8.31.255:8000"   // or the name might be in format: "http://erics-macbook-pro.local:8000"
+#define SERVER_URL "http://10.8.10.26:8000"   // or the name might be in format: "http://erics-macbook-pro.local:8000"
 #define UPDATE_INTERVAL 1/10.0
 
 @interface SMUViewController () <NSURLSessionTaskDelegate>
