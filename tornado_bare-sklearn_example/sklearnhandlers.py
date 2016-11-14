@@ -45,7 +45,7 @@ class SetParams(BaseHandler):
     def post(self):
         data = json.loads(self.request.body.decode("utf-8"))
         self.application.knn_param = data['KNeighbors']
-        self.application.rand_param data['SVM']
+        self.application.svm_C_param = data['SVM']
 
 class RequestNewDatasetId(BaseHandler):
     def get(self):
