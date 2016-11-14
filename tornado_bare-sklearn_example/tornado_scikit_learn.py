@@ -37,8 +37,9 @@ class Application(tornado.web.Application):
                     (r"/Handlers[/]?",        skh.PrintHandlers),
                     (r"/AddDataPoint[/]?",    skh.UploadLabeledDatapointHandler),
                     (r"/GetNewDatasetId[/]?", skh.RequestNewDatasetId),
-                    (r"/UpdateModel[/]?",     skh.UpdateModelForDatasetId),     
-                    (r"/PredictOne[/]?",      skh.PredictOneFromDatasetId),               
+                    (r"/UpdateModel[/]?",     skh.UpdateModelForDatasetId),
+                    (r"/PredictOne[/]?",      skh.PredictOneFromDatasetId),
+                    (r"/SetParameters[/]?",   skh.SetParams),
                     ]
 
         self.handlers_string = str(handlers)
@@ -48,14 +49,17 @@ class Application(tornado.web.Application):
             print(self.client.server_info()) # force pymongo to look for possible running servers, error if none running
             # if we get here, at least one instance of pymongo is running
             self.db = self.client.sklearndatabase # database with labeledinstances, models
-            
+
         except ServerSelectionTimeoutError as inst:
             print('Could not initialize database connection, stopping execution')
             print('Are you running a valid local-hosted instance of mongodb?')
             #raise inst
-        
+
         self.clf = [] # the classifier model (in-class assignment, you might need to change this line!)
         # but depending on your implementation, you may not need to change it  ¯\_(ツ)_/¯
+
+        self.knn_param = 4
+        self.svm_C_param = 100.0
 
         settings = {'debug':True}
         tornado.web.Application.__init__(self, handlers, **settings)
@@ -65,7 +69,7 @@ class Application(tornado.web.Application):
 
 
 def main():
-    '''Create server, begin IOLoop 
+    '''Create server, begin IOLoop
     '''
     tornado.options.parse_command_line()
     http_server = HTTPServer(Application(), xheaders=True)

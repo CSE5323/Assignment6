@@ -11,6 +11,7 @@ from tornado.options import define, options
 from basehandler import BaseHandler
 
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn import svm
 import pickle
 from bson.binary import Binary
 import json
@@ -40,6 +41,12 @@ class UploadLabeledDatapointHandler(BaseHandler):
             );
         self.write_json({"id":str(dbid),"feature":fvals,"label":label})
 
+class SetParams(BaseHandler):
+    def post(self):
+        data = json.loads(self.request.body.decode("utf-8"))
+        self.knn_param = data['KNeighbors']
+        self.rand_param data['RandomForest']
+
 class RequestNewDatasetId(BaseHandler):
     def get(self):
         '''Get a new dataset ID for building a new dataset
@@ -52,40 +59,58 @@ class UpdateModelForDatasetId(BaseHandler):
     def get(self):
         '''Train a new model (or update) for given dataset ID
         '''
-        dsid = self.get_int_arg("dsid",default=0)
+        dsid = self.get_int_arg("dsid", default = 0)
 
         # create feature vectors from database
         f=[];
-        for a in self.db.labeledinstances.find({"dsid":dsid}): 
+        for a in self.db.labeledinstances.find({}):
             f.append([float(val) for val in a['feature']])
 
         # create label vector from database
         l=[];
-        for a in self.db.labeledinstances.find({"dsid":dsid}): 
+        for a in self.db.labeledinstances.find({}):
             l.append(a['label'])
 
         # fit the model to the data
-        c1 = KNeighborsClassifier(n_neighbors=3);
-        acc = -1;
+        c1 = KNeighborsClassifier(n_neighbors = self.knn_param)
+        c2 = svm.svc(gamma = 0.0, C = self.svm_C_param)
+
+        acc_knn = -1;
+        acc_svm = -1
+
         if l:
             c1.fit(f,l) # training
-            lstar = c1.predict(f)
-            self.clf = c1
-            acc = sum(lstar==l)/float(len(l))
-            bytes = pickle.dumps(c1)
-            self.db.models.update({"dsid":dsid},
-                {  "$set": {"model":Binary(bytes)}  },
+            c2.fit(f,l)
+
+            lstar_knn = c1.predict(f)
+            lstar_svm = c2.predict(f)
+
+            self.clf["KNeighbors"] = c1
+            self.clf["SVM"] = c2
+
+            acc_knn = sum(lstar_knn == l)/float(len(l))
+            acc_svm = sum(lstar_svm == l)/float(len(l))
+
+            bytes_knn = pickle.dumps(c1)
+            bytes_svm = pickle.dumps(c2)
+
+            self.db.models.update({"classifier": "KNeighbors"},
+                {  "$set": {"model":Binary(bytes_knn)}  },
+                upsert=True)
+
+            self.db.models.update({"classifier": "SVM"},
+                {  "$set": {"model":Binary(bytes_svm)}  },
                 upsert=True)
 
         # send back the resubstitution accuracy
         # if training takes a while, we are blocking tornado!! No!!
-        self.write_json({"resubAccuracy":acc})
+        self.write_json({"resubAccuracy_knn":acc_knn, "resubAccuracy_svm":acc_svm})
 
 class PredictOneFromDatasetId(BaseHandler):
     def post(self):
         '''Predict the class of a sent feature vector
         '''
-        data = json.loads(self.request.body.decode("utf-8"))    
+        data = json.loads(self.request.body.decode("utf-8"))
 
         vals = data['feature'];
         fvals = [float(val) for val in vals];
@@ -94,9 +119,11 @@ class PredictOneFromDatasetId(BaseHandler):
 
         # load the model from the database (using pickle)
         # we are blocking tornado!! no!!
-        if(self.clf == []):
+
+        if(self.clf == [] or not self.clf.has_key(dsid)):
             print('Loading Model From DB')
-            tmp = self.db.models.find_one({"dsid":dsid})
-            self.clf = pickle.loads(tmp['model'])
-        predLabel = self.clf.predict(fvals);
-        self.write_json({"prediction":str(predLabel)})
+            tmp = self.db.models.find_one({"dsid": dsid})
+            self.clf = {dsid : pickle.loads(tmp['model'])}
+        predLabel1 = self.clf["KNeighbors"].predict(fvals);
+        predLabel2 = self.clf["SVM"].predict(fvals);
+        self.write_json({"prediction": str(predLabel)})
