@@ -88,7 +88,7 @@
     _dsid = @1;
     _isCalibrating = NO;
     _isWaitingForInputData = YES;
-    _calibrationStage = -1;
+    _calibrationStage = 0;
     _magValue = 0.1;
     
     //setup NSURLSession (ephemeral)
